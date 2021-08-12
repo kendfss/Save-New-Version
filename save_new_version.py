@@ -48,15 +48,16 @@ def scrape(path):
         return fob.read()
 
 class SaveNewVersionCommand(sublime_plugin.WindowCommand):
-    def run(self):
+    def run(self, enter):
 
         old_name = self.window.active_view().file_name()
-        new_name = namespacer(old_name)
+        title = os.path.splitext(old_name)[0]
+        new_name = namespacer(old_name) if enter else namespacer(title+"_bckp")
         
         text = scrape(old_name)
         
         with open(new_name, 'w') as fob:
             fob.write(text)
-
-        self.window.run_command('close_file')
-        self.window.run_command('open_file', {"file": new_name})
+        if enter:
+            self.window.run_command('close_file')
+            self.window.run_command('open_file', {"file": new_name})
